@@ -29,27 +29,17 @@ function rundomColor() {
 //     p_elem.textContent = num1 + " " + num2;
 // };
 
-//////////////////////////////////////////////
-let data = [
-  {
-    idN: 16657687687,
-    title: "nook",
-    price: 500,
-    count: 2,
-  },
-  {
-    idN: 25468433346,
-    title: "lp",
-    price: 800,
-    count: 4,
-  },
-  {
-    idN: 35346878546,
-    title: "zoom",
-    price: 200,
-    count: 1,
-  },
-];
+
+let data = [];
+
+
+
+const getLocalStorage = () => {
+  return localStorage.getItem("products") 
+  ? JSON.parse(localStorage.getItem("products"))
+  : []  
+}
+
 
 const add_form = document.querySelector(".add_form");
 const products = document.querySelector(".products");
@@ -65,12 +55,13 @@ add_form.addEventListener("submit", (event) => {
   add_form.title.value = "";
   add_form.price.value = "";
   add_form.count.value = "";
-
+  addToLocalStorage  (title, price, count, idN);
   rerender();
 });
 
 function deleteProduct(id) {
   data = data.filter((product) => product.idN !== id);
+  removeFromLocalStorage(id);
   rerender();
 }
 
@@ -87,8 +78,10 @@ function createProdCard(title, price, count, idN) {
   price_p.innerText = "price: " + price + "$";
   count_p.innerText = "count: " + count;
   delete_button.innerText = "Delete";
+  
   delete_button.addEventListener("click", () => {
     deleteProduct(idN);
+    
   });
 
   delete_button.classList.add("delete_button");
@@ -107,7 +100,7 @@ function createProdCard(title, price, count, idN) {
 function rerender() {
   products.innerText = "";
   total.innerText = "";
-
+  data = getLocalStorage();
   if (data.length === 0) {
     const no_products = document.createElement("p");
     no_products.innerText = "Товаров нет";
@@ -116,6 +109,7 @@ function rerender() {
     data.forEach(({ title, price, count, idN }) => {
       const container = createProdCard(title, price, count, idN);
       products.append(container);
+      
     });
     totalAll();
   }
@@ -138,3 +132,22 @@ function totalAll() {
 }
 
 rerender();
+
+
+function addToLocalStorage  (title, price, count, idN) {
+  const products = getLocalStorage()
+  const newProduct = { title, price, count, idN } 
+  products.push(newProduct)
+  localStorage.setItem('products', JSON.stringify(products))
+}
+
+
+const removeFromLocalStorage = (id) => {
+ 
+  const products = getLocalStorage()
+
+  const newProducts = products.filter(product => product.idN !== id)
+  localStorage.setItem("products", JSON.stringify(newProducts))
+  
+}
+
